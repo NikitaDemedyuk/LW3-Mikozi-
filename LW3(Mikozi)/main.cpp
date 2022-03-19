@@ -12,9 +12,9 @@
 
 class GaluaLFSR {
 private:
-    int32_t state_;
+    int64_t state_;
     size_t size_;
-    int32_t mask_;
+    int64_t mask_;
 
 public:
     GaluaLFSR(int32_t state, size_t size, int32_t polynomial): state_{ state }, size_{ size }, mask_{ polynomial } {}
@@ -31,8 +31,8 @@ public:
 
 class GeffeGenerator {
 private:
-    std::function <bool(std::vector<bool>)> func_;
     std::vector <GaluaLFSR> registers_;
+    std::function <bool(std::vector<bool>)> func_;
 
 public:
     GeffeGenerator(std::function<bool(std::vector<bool>)> func, const std::vector<GaluaLFSR>& gs)
@@ -64,13 +64,17 @@ void writeToFile(GeffeGenerator gen, std::string filename, size_t sample_size) {
     }
 }
 
-int main() {
-    std::vector<GaluaLFSR> gs;
-    gs.emplace_back(0x6152E3, 23, 0x400010);
-    gs.emplace_back(0x1E82F0A9, 29, 0x10000002);
-    gs.emplace_back(0x7817BECE, 31, 0x40000004);
+std::vector <GaluaLFSR> makeVectorGalua() {
+    std::vector<GaluaLFSR> galuaVector;
+    galuaVector.emplace_back(0x6152E3, 23, 0x400010);
+    galuaVector.emplace_back(0x1E82F0A9, 29, 0x10000002);
+    galuaVector.emplace_back(0x7817BECE, 31, 0x40000004);
+    return galuaVector;
+}
 
+int main() {
+    std::vector<GaluaLFSR> galuaVector = makeVectorGalua();
     GeffeGenerator g_gen([](const std::vector<bool>& bits) {
-        return (bits[0] & bits[1]) ^ ((bits[0] ^ 1) & bits[2]); }, gs);
+        return (bits[0] & bits[1]) ^ ((bits[0] ^ 1) & bits[2]); }, galuaVector);
     writeToFile(g_gen, "/Users/nikita/Developer/Hometask/Programming/C++/LW3(Mikozi)/generated.bin", 256);
 }
