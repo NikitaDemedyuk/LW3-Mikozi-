@@ -18,7 +18,6 @@ private:
 
 public:
     GaluaLFSR(int32_t state, size_t size, int32_t polynomial): state_{ state }, size_{ size }, mask_{ polynomial } {}
-
     bool Next() {
         if (state_ & 1) {
             state_ = ((state_ ^ mask_) >> 1) | (1 << (size_ - 1));
